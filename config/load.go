@@ -16,6 +16,7 @@ type Config struct {
 
 type db struct {
 	Username string
+	Password string
 	Name     string
 }
 
@@ -31,11 +32,13 @@ func Load() (Config, error) {
 
 	// DB
 	username, err := getEnv("DB_USERNAME")
+	password, err := getEnv("DB_PASSWORD")
 	name, err := getEnv("DB_NAME")
 
 	cfg.DB = db{
 		Username: username,
 		Name:     name,
+		Password: password,
 	}
 
 	return cfg, err

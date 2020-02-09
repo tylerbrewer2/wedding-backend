@@ -33,7 +33,7 @@ func main() {
 }
 
 func startAndVerifyDB(cfg config.Config) (*sql.DB, error) {
-	connStr := fmt.Sprintf("user=%s dbname=%s sslmode=disable", cfg.DB.Username, cfg.DB.Name)
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", cfg.DB.Username, cfg.DB.Password, cfg.DB.Name)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, errors.Wrap(err, "error opening conn to database")
