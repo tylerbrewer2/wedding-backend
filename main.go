@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,7 +14,10 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load()
+	envPath := flag.String("envPath", "./.env", "Specified the absolute path to the .env file that should be used")
+	flag.Parse()
+
+	cfg, err := config.Load(*envPath)
 	if err != nil {
 		log.Fatal(err)
 	}
