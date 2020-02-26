@@ -40,35 +40,41 @@ func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("handling request to create rsvp")
 		defer fmt.Println("finished handling request")
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Print(errors.Wrap(err, "ERROR: error reading request body"))
-		}
+		addCorsHeaders(w)
 
-		rsvp := RSVP{}
-		err = json.Unmarshal(body, &rsvp)
-		if err != nil {
-			log.Printf("BODY: %s", body)
-			log.Print(errors.Wrap(err, "ERROR: error unmarshalling JSON"))
-		}
-
-		err = validateRsvp(rsvp)
-		if err != nil {
-			fmt.Println(errors.Wrap(err, "error validating new rsvp"))
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			w.Write([]byte(err.Error()))
+		if r.Method == "OPTIONS" {
+			log.Print("recieved preflight request")
+			w.WriteHeader(http.StatusOK)
 			return
-		}
+		} else {
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Print(errors.Wrap(err, "ERROR: error reading request body"))
+			}
 
-		err = rep.createRSVP(rsvp)
-		if err != nil {
-			log.Print(errors.Wrap(err, "ERROR: error inserting rsvp into database"))
-		}
+			rsvp := RSVP{}
+			err = json.Unmarshal(body, &rsvp)
+			if err != nil {
+				log.Printf("BODY: %s", body)
+				log.Print(errors.Wrap(err, "ERROR: error unmarshalling JSON"))
+			}
 
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+			err = validateRsvp(rsvp)
+			if err != nil {
+				fmt.Println(errors.Wrap(err, "error validating new rsvp"))
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write([]byte(err.Error()))
+				return
+			}
+
+			err = rep.createRSVP(rsvp)
+			if err != nil {
+				log.Print(errors.Wrap(err, "ERROR: error inserting rsvp into database"))
+			}
+
+			fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+		}
 	}
 }
 
@@ -104,4 +110,14 @@ func validateRsvp(req RSVP) error {
 	}
 
 	return nil
+}
+
+func addCorsHeaders(res http.ResponseWriter) {
+	headers := res.Header()
+	headers.Add("Access-Control-Allow-Origin", "*")
+	headers.Add("Vary", "Origin")
+	headers.Add("Vary", "Access-Control-Request-Method")
+	headers.Add("Vary", "Access-Control-Request-Headers")
+	headers.Add("Access-Control-Allow-Headers", "Content-Type, Origin, Accept, token")
+	headers.Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
 }
