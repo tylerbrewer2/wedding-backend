@@ -45,13 +45,14 @@ func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Fatal(errors.Wrap(err, "error reading request body"))
+			log.Print(errors.Wrap(err, "ERROR: error reading request body"))
 		}
 
 		rsvp := RSVP{}
 		err = json.Unmarshal(body, &rsvp)
 		if err != nil {
-			log.Fatal(errors.Wrap(err, "error unmarshalling JSON"))
+			log.Printf("BODY: %s", body)
+			log.Print(errors.Wrap(err, "ERROR: error unmarshalling JSON"))
 		}
 
 		err = validateRsvp(rsvp)
@@ -64,7 +65,7 @@ func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
 
 		err = rep.createRSVP(rsvp)
 		if err != nil {
-			log.Fatal(errors.Wrap(err, "error inserting rsvp into database"))
+			log.Print(errors.Wrap(err, "ERROR: error inserting rsvp into database"))
 		}
 
 		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
