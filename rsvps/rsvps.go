@@ -18,7 +18,7 @@ type RSVP struct {
 	Email      string `json:"email"`
 	FirstName  string `json:"firstName"`
 	LastName   string `json:"lastName"`
-	Attending  bool   `json:"attending"`
+	Attending  string `json:"attending"`
 	FoodChoice string `json:"food"`
 	GuestName  string `json:"extraAttendees"`
 	GuestFood  string `json:"guestFood"`

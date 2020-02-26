@@ -49,7 +49,7 @@ func (r repository) allRSVPs(db *sql.DB) ([]RSVP, error) {
 			email      string
 			firstName  string
 			lastName   string
-			attending  bool
+			attending  string
 			foodChoice string
 			guestName  string
 			note       string
