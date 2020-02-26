@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,6 +22,11 @@ type RSVP struct {
 	GuestName  string `json:"extraAttendees"`
 	GuestFood  string `json:"guestFood"`
 	Note       string `json:"message"`
+}
+
+type Response struct {
+	Status  int32  `json:"status"`
+	Message string `json:"message"`
 }
 
 // RegisterRoutes attaches all routes related to RSVPs to the HTTP mux
@@ -73,7 +77,17 @@ func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
 				log.Print(errors.Wrap(err, "ERROR: error inserting rsvp into database"))
 			}
 
-			fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+			res := Response{
+				Status:  http.StatusOK,
+				Message: "RSVP successfully created",
+			}
+
+			j, err := json.Marshal(res)
+			if err != nil {
+				log.Print(errors.Wrap(err, "ERROR: marshalling json response"))
+			}
+
+			fmt.Fprintf(w, string(j))
 		}
 	}
 }
