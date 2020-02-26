@@ -16,9 +16,9 @@ func newRepository(db *sql.DB) repository {
 
 func (r repository) createRSVP(rsvp RSVP) error {
 	res, err := r.DB.Exec(`
-	INSERT INTO rsvp (email, first_name, last_name, attending, food_choice, guest_name, note)
-	VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, rsvp.Email, rsvp.FirstName, rsvp.LastName, rsvp.Attending, rsvp.FoodChoice, rsvp.GuestName, rsvp.Note)
+	INSERT INTO rsvp (email, first_name, last_name, attending, food_choice, guest_name, guest_food, note)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`, rsvp.Email, rsvp.FirstName, rsvp.LastName, rsvp.Attending, rsvp.FoodChoice, rsvp.GuestName, rsvp.GuestFood, rsvp.Note)
 	if err != nil {
 		return errors.Wrap(err, "error inserting rsvp into database")
 	}

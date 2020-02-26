@@ -16,12 +16,13 @@ import (
 type RSVP struct {
 	ID         int32  `json:"id"`
 	Email      string `json:"email"`
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
+	FirstName  string `json:"firstName"`
+	LastName   string `json:"lastName"`
 	Attending  bool   `json:"attending"`
-	FoodChoice string `json:"food_choice"`
-	GuestName  string `json:"guest_name"`
-	Note       string `json:"note"`
+	FoodChoice string `json:"food"`
+	GuestName  string `json:"extraAttendees"`
+	GuestFood  string `json:"guestFood"`
+	Note       string `json:"message"`
 }
 
 // RegisterRoutes attaches all routes related to RSVPs to the HTTP mux
@@ -39,6 +40,8 @@ func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("handling request to create rsvp")
 		defer fmt.Println("finished handling request")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -71,6 +74,7 @@ func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
 func allRSVPsHandler(db *sql.DB, rep repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		rsvps, err := rep.allRSVPs(db)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
