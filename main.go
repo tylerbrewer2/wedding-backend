@@ -30,7 +30,7 @@ func main() {
 
 	fmt.Println("Starting web server")
 
-	rsvps.RegisterRoutes(db)
+	rsvps.RegisterRoutes(db, cfg)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	fmt.Println("Server shutting down")

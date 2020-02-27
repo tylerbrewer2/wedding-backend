@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/tylerbrewer2/wedding-backend/config"
 )
 
 // RSVP is a data model representation of RSVPs
@@ -30,20 +31,26 @@ type Response struct {
 }
 
 // RegisterRoutes attaches all routes related to RSVPs to the HTTP mux
-func RegisterRoutes(db *sql.DB) {
+func RegisterRoutes(db *sql.DB, cfg config.Config) {
 	fmt.Println("Registering RSVP routes")
 	repository := newRepository(db)
 
-	http.HandleFunc("/rsvps/new", createRSVPHandler(db, repository))
+	http.HandleFunc("/rsvps/new", createRSVPHandler(db, repository, cfg))
 	http.HandleFunc("/rsvps", allRSVPsHandler(db, repository))
 
 	fmt.Println("Finished registering RSVP routes")
 }
 
-func createRSVPHandler(db *sql.DB, rep repository) http.HandlerFunc {
+func createRSVPHandler(db *sql.DB, rep repository, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("handling request to create rsvp")
 		defer fmt.Println("finished handling request")
+
+		if ok := verifyAuthentication(r, cfg); !ok {
+			log.Print("ERROR: Unauthorized")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		addCorsHeaders(w)
 
@@ -134,4 +141,17 @@ func addCorsHeaders(res http.ResponseWriter) {
 	headers.Add("Vary", "Access-Control-Request-Headers")
 	headers.Add("Access-Control-Allow-Headers", "Content-Type, Origin, Accept, token")
 	headers.Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+}
+
+func verifyAuthentication(r *http.Request, cfg config.Config) bool {
+	username, password, ok := r.BasicAuth()
+	if !ok {
+		return false
+	}
+
+	if username != cfg.Authentication.Username || password != cfg.Authentication.Password {
+		return false
+	}
+
+	return true
 }

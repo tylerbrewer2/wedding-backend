@@ -11,13 +11,19 @@ import (
 // Config hold application config environment variables pulled from env via Load()
 // Config should not be created outside of func Load
 type Config struct {
-	DB db
+	DB             db
+	Authentication auth
 }
 
 type db struct {
 	Username string
 	Password string
 	Name     string
+}
+
+type auth struct {
+	Username string
+	Password string
 }
 
 // Load loads all environment variables within .env
@@ -39,6 +45,15 @@ func Load(envPath string) (Config, error) {
 		Username: username,
 		Name:     name,
 		Password: password,
+	}
+
+	// Authentication
+	au, err := getEnv("AUTH_USERNAME")
+	ap, err := getEnv("AUTH_PASSWORD")
+
+	cfg.Authentication = auth{
+		Username: au,
+		Password: ap,
 	}
 
 	return cfg, err
