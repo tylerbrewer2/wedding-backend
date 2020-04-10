@@ -36,7 +36,7 @@ func (r repository) createRSVP(rsvp RSVP) error {
 }
 
 func (r repository) allRSVPs(db *sql.DB) ([]RSVP, error) {
-	rows, err := db.Query("SELECT id, email, first_name, last_name, attending, food_choice, guest_name, note FROM rsvp;")
+	rows, err := db.Query("SELECT id, email, first_name, last_name, attending, food_choice, guest_name, guest_food, note FROM rsvp;")
 	if err != nil {
 		return []RSVP{}, errors.Wrap(err, "error retrieving rsvps from database")
 	}
@@ -51,11 +51,12 @@ func (r repository) allRSVPs(db *sql.DB) ([]RSVP, error) {
 			lastName   string
 			attending  string
 			foodChoice string
+			guestFood  string
 			guestName  string
 			note       string
 		)
 
-		err := rows.Scan(&id, &email, &firstName, &lastName, &attending, &foodChoice, &guestName, &note)
+		err := rows.Scan(&id, &email, &firstName, &lastName, &attending, &foodChoice, &guestName, &guestFood, &note)
 		if err != nil {
 			return []RSVP{}, errors.Wrap(err, "error scanning rows")
 		}
@@ -67,6 +68,7 @@ func (r repository) allRSVPs(db *sql.DB) ([]RSVP, error) {
 			LastName:   lastName,
 			Attending:  attending,
 			FoodChoice: foodChoice,
+			GuestFood:  guestFood,
 			GuestName:  guestName,
 			Note:       note,
 		}
